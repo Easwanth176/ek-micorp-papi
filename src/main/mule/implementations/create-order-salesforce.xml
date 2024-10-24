@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:json-logger="http://www.mulesoft.org/schema/mule/json-logger"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/json-logger http://www.mulesoft.org/schema/mule/json-logger/current/mule-json-logger.xsd">
+
+
+
+
+
+
+
+
+
+	<flow name="create-order-salesforce-private-flow" doc:id="77a35133-319d-47d2-bfd3-f0fb53ed1012" >
+		<json-logger:logger doc:name="Start" doc:id="a2b8d24b-8b89-4962-90f3-ca7aa19bf727" config-ref="JSON_Logger_Config" message="#[vars.correlationId]"/>
+		<set-variable value="#[payload]" doc:name="Store Payload" doc:id="435c1d58-769c-4da7-9353-5b396aad04af" variableName="completePayload"/>
+		<ee:transform doc:name="Var : client_id,client_secret,email" doc:id="7645b0b4-f706-468f-8a29-77a9a5dcb9d3" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable resource="dwl/v-email.dwl" variableName="email" />
+				<ee:set-variable resource="dwl/v-client_id.dwl" variableName="client_id" />
+				<ee:set-variable resource="dwl/v-client_secret.dwl" variableName="client_secret" />
+			</ee:variables>
+		</ee:transform>
+		<flow-ref doc:name="customer-verification-sub-flow" doc:id="fcf01d26-9bf0-4111-acd7-795ebc8140bd" name="customer-verification-sub-flow" targetValue='#[payload.CustomerId != ""]'/>
+		<choice doc:name="customer?" doc:id="8352b08b-3c7c-49a6-8929-6cc0190ccbd3" >
+			<when expression='#[payload.CustomerId == ""]'>
+				<flow-ref doc:name="create-customer-sub-flow" doc:id="f7a83260-e9b7-4361-b4a7-f1a678c6b6e0" name="create-customer-sub-flow" />
+			</when>
+			<otherwise >
+				<ee:transform doc:name="Customer Exists Payload" doc:id="249fa3a9-08d8-4fcb-8569-7e78b1cdcba6" >
+					<ee:message >
+						<ee:set-payload resource="dwl/p-customer-exist.dwl" />
+					</ee:message>
+				</ee:transform>
+			</otherwise>
+		</choice>
+		<set-variable value="#[payload.CustomerId]" doc:name="Var : customerId" doc:id="482875c3-2b15-47b3-89a9-fab298b1b827" variableName="customerId"/>
+		<flow-ref doc:name="create-order-sub-flow" doc:id="1703a6bd-ab4a-40f5-ae20-ac4071e4125a" name="create-order-sub-flow" />
+		<set-variable value="#[payload.OrderID]" doc:name="var : OrderId" doc:id="b6b63cb5-21fd-42ad-a827-24aceacc94c3" variableName="OrderID"/>
+		<flow-ref doc:name="create-item-sub-flow" doc:id="6edad586-b2a7-4930-b479-908e63fd40e1" name="create-item-sub-flow" />
+		<ee:transform doc:name="Final Response" doc:id="93e713d0-2d06-4946-9d1f-5e440cc1f660" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"Order Id": vars.OrderID,
+	"Status"  : if(payload.Status == true) 
+				"order Created Successfully"
+				else
+				"Failed to Create Order"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<json-logger:logger doc:name="End" doc:id="5e1ef215-0870-4379-b64f-7b8446064516" config-ref="JSON_Logger_Config" tracePoint="END" message="#[vars.correlationId]"/>
+	</flow>
+	
+	
+	
+	
+	</mule>

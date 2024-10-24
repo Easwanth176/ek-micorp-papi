@@ -1,0 +1,41 @@
+#%RAML 1.0 DataType
+
+example : !include /examples/requests/postOrder.raml
+
+type: object
+properties:
+  orderData:
+    type: object
+    properties:
+      poNumber: string
+      signatureRequiredFlag: boolean
+      shipInstructions: string
+      giftWrapFlag: boolean
+      giftWrapMessage: string
+      currencyCode: string
+      subTotal: number
+
+  customer:
+    type: object
+    properties:
+      firstName: string
+      lastName: string
+      phoneNumber: string
+      email: string
+      address:
+        type: object
+        properties:
+          address1: string
+          city: string
+          zipCode: string
+          country: string
+
+  items:
+    type: array
+    items:
+      type: object
+      properties:
+        id: string
+        category: string
+        quantity: integer
+        size: string

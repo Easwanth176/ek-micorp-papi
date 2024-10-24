@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:json-logger="http://www.mulesoft.org/schema/mule/json-logger"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/json-logger http://www.mulesoft.org/schema/mule/json-logger/current/mule-json-logger.xsd">
+	
+
+	<sub-flow name="get-health-check" doc:id="0d308732-b927-4967-b37d-1fe48d7414e8" >
+		<json-logger:logger doc:name="Start" doc:id="fa18f12b-2f3c-4f77-ae0a-f5ce3df58731" config-ref="JSON_Logger_Config" message="#[vars.correlationID]"/>
+		<ee:transform doc:name="Health Check Response">
+            <ee:message>
+				<ee:set-payload resource="dwl/p-dwl-health-check.dwl" />
+            </ee:message>
+        </ee:transform>
+		<json-logger:logger doc:name="End" doc:id="4eca14e1-084d-4de9-9f31-7da398d232d2" config-ref="JSON_Logger_Config" tracePoint="END" message="#[vars.correlationID]"/>
+	
+</sub-flow>
+
+	
+	
+	
+	
+	
+</mule>

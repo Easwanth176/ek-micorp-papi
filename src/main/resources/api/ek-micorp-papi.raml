@@ -1,0 +1,43 @@
+#%RAML 1.0
+title: Process Micorp orders
+description: This API is used for processing the orders from source system
+version: v1
+mediaType: 
+- application/json
+
+# Common Library
+uses:
+  commonLibrary: exchange_modules/ce235d46-115c-497c-b0e2-474afd80f5e9/common-lib/1.0.1/common-lib.raml
+
+# Resource Types
+resourceTypes:
+  commonResource: !include  exchange_modules/ce235d46-115c-497c-b0e2-474afd80f5e9/common-lib/1.0.1/resourceTypes/commonResourceTypes.raml
+
+# Data Types
+types:
+  postOrder: !include /dataTypes/requests/postOrder.raml
+  orderResponse: !include /dataTypes/responses/orderResponse.raml
+  healthCheck:  !include /dataTypes/responses/healthCheck.raml
+
+# Security Schema
+securitySchemes:
+  basic:
+    type: Basic Authentication
+securedBy: [basic]
+
+# Resources
+/healthCheck:
+  get:
+  type:
+    commonResource:
+      getDescription: This endpoint is used to check the health status of the API. 
+      getResponseType: healthCheck
+    
+/orders:
+    is: [commonLibrary.errorResponses]
+    post:
+    type:
+      commonResource:
+        postRequestType: postOrder
+        postResponseType: orderResponse
+        postDescription: This endpoint is used to create a new order in the system.

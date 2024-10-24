@@ -1,0 +1,17 @@
+#%RAML 1.0 ResourceType
+
+get?:
+  description: <<getDescription>>
+  responses:
+    200:
+      body:
+        type: <<getResponseType>>
+
+post?:
+  description: <<postDescription>>
+  body:
+    type: <<postRequestType>>
+  responses:
+    200:
+      body:
+        type: <<postResponseType>>

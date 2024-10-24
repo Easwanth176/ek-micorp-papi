@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:json-logger="http://www.mulesoft.org/schema/mule/json-logger"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/json-logger http://www.mulesoft.org/schema/mule/json-logger/current/mule-json-logger.xsd">
+	
+	
+	
+	
+		<sub-flow name="customer-verification-sub-flow" doc:id="8bcce8ac-e231-47c0-aa5b-b2d54fb5705f" >
+		<json-logger:logger doc:name="Start" doc:id="db28e8c8-e1c2-485e-a8b3-000bebdd5207" config-ref="JSON_Logger_Config" message="#[vars.correlationId]"/>
+		<ee:transform doc:name="Query For Customer">
+            <ee:message>
+				<ee:set-payload resource="dwl/p-query-input.dwl" />
+            
+</ee:message>
+        </ee:transform>
+		<http:request method="GET" doc:name="Get: Customer Details" doc:id="faea8bb6-e16e-4f90-ac1d-c06d58b8f2fc" url="${base.url}/customer" correlationId="#[vars.correlationId]" sendBodyMode="ALWAYS">
+			<http:body ><![CDATA[#[%dw 2.0
+output application/json
+---
+payload]]]></http:body>
+			<http:headers ><![CDATA[#[output application/java
+---
+{
+	"client_Id" : vars.client_id,
+	"client_Secret" : vars.client_secret
+	
+}]]]></http:headers>
+			<http:query-params ><![CDATA[#[output application/java
+---
+{
+	"" : ""
+}]]]></http:query-params>
+		</http:request>
+		<ee:transform doc:name="Customer Response" doc:id="4603ea0b-36ec-418f-ae13-5d95ec88b335" >
+			<ee:message >
+				<ee:set-payload resource="dwl/p-query-response.dwl" />
+			</ee:message>
+		</ee:transform>
+		<json-logger:logger doc:name="End" doc:id="c5b13232-e542-4283-9f8c-18a8362ac058" config-ref="JSON_Logger_Config" message="#[vars.correlationId]" tracePoint="END"/>
+	
+</sub-flow>
+	
+	
+	
+	
+	</mule>

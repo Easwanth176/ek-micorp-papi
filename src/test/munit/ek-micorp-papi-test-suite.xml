@@ -1,0 +1,321 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd">
+	<munit:config name="ek-micorp-papi-test-suite.xml" />
+	<munit:test name="ek-micorp-papi-health-check-success-test" doc:id="35e6c173-791a-45c9-9cba-f5aa501b2e69" description="Test">
+		<munit:execution >
+			<munit:set-event doc:name="Set Event : correlationId" doc:id="39a0f8e4-1925-41ee-bbf7-af4663f2d5ca" >
+				<munit:variables >
+					<munit:variable key="correlationId" value="1221-31324-234324-23" />
+				</munit:variables>
+			</munit:set-event>
+			<flow-ref doc:name="get:\healthCheck:ek-micorp-papi-config" doc:id="3aff99b3-f6e4-45bd-84f8-3d6e05ebc414" name="get:\healthCheck:ek-micorp-papi-config"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-equals doc:name="Assert equals" doc:id="2eada3eb-19dc-45fb-b5f4-cd197c92d2f3" actual="#[payload]" expected="#[readUrl('classpath://files//health-check-success.dwl')]"/>
+			<munit-tools:verify-call doc:name="Verify call : End" doc:id="efb58587-b00a-440c-b13c-989406d4b2d8" processor="json-logger:logger">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="b961edf6-5b90-4869-aea3-8e6e8ee59ffc" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="ek-micorp-papi-health-check-failure-test" doc:id="274f0da9-aee7-4417-bdcf-5dd77bfb2574" description="Test" expectedErrorType="MULE:UNKNOWN">
+		<munit:execution >
+			<flow-ref doc:name="get:\healthCheck:ek-micorp-papi-config" doc:id="e92917d6-a702-491d-849f-f69c985c92ab" name="get:\healthCheck:ek-micorp-papi-config" />
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:verify-call doc:name="Verify call : End" doc:id="89a8aa74-0c6b-4152-99b5-036658fd0df9" processor="ee:transform" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="aa592867-06b9-44a9-8a49-95065e21dc35" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="ek-micorp-papi-order-customer-exist-success-test" doc:id="730dd2df-ca96-48d3-9e18-33638a86c717" description="Test">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when : customer Verification " doc:id="b7a23c7c-9447-456c-b787-7e34988f7f95" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="faea8bb6-e16e-4f90-ac1d-c06d58b8f2fc" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[readUrl('classpath://files//customer-verification-exist-response.dwl')]" mediaType="application/java" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock when : Create Order" doc:id="a1f9f5f0-4fa1-44fb-8c0d-30afb1134da0" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="b6202161-f51c-4071-80ff-9a58bb52ca9f" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[readUrl('classpath://files//create-order.dwl')]" mediaType="application/java" />
+					<munit-tools:attributes value='#[{&#10;	"client_Id" : vars.client_id,&#10;	"client_Secret" : vars.client_secret&#10;	&#10;}]' />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock when : create item" doc:id="b247b2ae-b6df-476e-9b66-1f732e727482" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="7ec70a7f-477d-4de5-bbaf-b14dc4096cc0" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[readUrl('classpath://files//create-order.dwl')]" mediaType="application/java" />
+					<munit-tools:attributes value='#[{&#10;	"client_Id" : vars.client_id,&#10;	"client_Secret" : vars.client_secret&#10;	&#10;}]' />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<munit:set-event doc:name="Set Event : payload" doc:id="8099fc69-5688-40a3-9123-c495e77f822e" >
+				<munit:payload value="#[readUrl('classpath://files//order-input.dwl')]" />
+				<munit:variables >
+					<munit:variable key="correlationID" value="234234-2345234-23456" />
+				</munit:variables>
+			</munit:set-event>
+			<flow-ref doc:name="Flow-ref to post:\orders:application\json:ek-micorp-papi-config" doc:id="1f9deb7f-2fce-4a02-9e16-79bb42b525c1" name="post:\orders:application\json:ek-micorp-papi-config"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-equals doc:name="Assert equals : payload" doc:id="c84526ae-07f7-4cdf-8e3f-a92756410ce9" actual="#[payload]" expected="#[readUrl('classpath://files//final-response.dwl')]"/>
+			<munit-tools:verify-call doc:name="Verify call : End" doc:id="0a5e7ff5-c406-4498-b47f-cc9d3aaec7d1" processor="json-logger:logger">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="13da6a9d-ff17-4382-8c15-a1ac08a11b95" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="ek-micorp-papi-order-customer-exist-failure-test" doc:id="2853b8b5-dbf3-4615-9052-57258e4843e5" description="Test" expectedErrorType="HTTP:INTERNAL_SERVER_ERROR">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when : customer Verification " doc:id="02bff001-9737-4e4f-80f5-7f7d45140161" processor="http:request" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="faea8bb6-e16e-4f90-ac1d-c06d58b8f2fc" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="HTTP:INTERNAL_SERVER_ERROR" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<munit:set-event doc:name="Set Event : payload" doc:id="c743fc0a-c23e-4f89-9897-9bb9a4d29696" >
+				<munit:payload value="#[readUrl('classpath://files//order-input.dwl')]" />
+				<munit:variables >
+					<munit:variable key="correlationID" value="234234-2345234-23456" />
+				</munit:variables>
+			</munit:set-event>
+			<flow-ref doc:name="Flow-ref to post:\orders:application\json:ek-micorp-papi-config" doc:id="b2a3945e-1bc9-4f28-ab8e-ee7f628181ee" name="post:\orders:application\json:ek-micorp-papi-config" />
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:verify-call doc:name="Verify call : HTTP:INTERNAL_SERVER_ERROR" doc:id="b37fa6d7-3019-4f9a-aff4-086fcd5f39b2" processor="ee:transform" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="4a6f6e72-251e-4a17-8529-7e0a83a02399" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="ek-micorp-papi-order-customer-doest-exist-success" doc:id="7655a9f0-3463-4a32-bb3e-199055aa0405" description="Test">
+		<munit:behavior>
+			<munit-tools:mock-when doc:name="Mock when : customer Verification " doc:id="714e002b-84ac-4d07-8e84-f8bffba2272f" processor="http:request">
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute whereValue="faea8bb6-e16e-4f90-ac1d-c06d58b8f2fc" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return>
+					<munit-tools:payload value="#[readUrl('classpath://files//customer-verification-not-exist-response.dwl')]" mediaType="application/java" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock when : create customer" doc:id="2b498710-f7a6-411a-ae83-aec822007960" processor="http:request">
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute whereValue="b6e12e37-359c-47f8-92a6-3fdf6fd38238" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return>
+					<munit-tools:payload value="#[readUrl('classpath://files//create-customer.dwl')]" mediaType="application/java" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock when : Create Order" doc:id="90049ff6-4c8f-45b3-9aac-7a213e552d42" processor="http:request">
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute whereValue="b6202161-f51c-4071-80ff-9a58bb52ca9f" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return>
+					<munit-tools:payload value="#[readUrl('classpath://files//create-order.dwl')]" mediaType="application/java" />
+					<munit-tools:attributes value='#[{&#10;	"client_Id" : vars.client_id,&#10;	"client_Secret" : vars.client_secret&#10;	&#10;}]' />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock when : create item" doc:id="299d2135-f876-44ab-b384-d12b5244033c" processor="http:request">
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute whereValue="7ec70a7f-477d-4de5-bbaf-b14dc4096cc0" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return>
+					<munit-tools:payload value="#[readUrl('classpath://files//create-order.dwl')]" mediaType="application/java" />
+					<munit-tools:attributes value='#[{&#10;	"client_Id" : vars.client_id,&#10;	"client_Secret" : vars.client_secret&#10;	&#10;}]' />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution>
+			<munit:set-event doc:name="Set Event : payload" doc:id="b3427c13-5aee-4c5f-98e2-b93d79d4f4b7">
+				<munit:payload value="#[readUrl('classpath://files//order-input.dwl')]" />
+				<munit:variables>
+					<munit:variable key="correlationID" value="234234-2345234-23456" />
+				</munit:variables>
+			</munit:set-event>
+			<flow-ref doc:name="Flow-ref to post:\orders:application\json:ek-micorp-papi-config" doc:id="1bd62f15-0860-4010-a62f-3eb83a254aad" name="post:\orders:application\json:ek-micorp-papi-config" />
+		</munit:execution>
+		<munit:validation>
+			<munit-tools:assert-equals doc:name="Assert equals : payload" doc:id="0e93af11-db51-4c49-9c5c-cb55ee006ff4" actual="#[payload]" expected="#[readUrl('classpath://files//final-response.dwl')]" />
+			<munit-tools:verify-call doc:name="Verify call : End" doc:id="0ded856a-4445-4803-821e-eb28319ea5d7" processor="json-logger:logger">
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute whereValue="13da6a9d-ff17-4382-8c15-a1ac08a11b95" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="ek-micorp-papi-order-customer-doest-exist-customer-failure-test" doc:id="13dc9e24-5755-4899-9897-74810efb10e2" description="Test" expectedErrorType="HTTP:CONNECTIVITY">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when : customer Verification " doc:id="fef85b52-6478-4016-a619-310ce47cfcb3" processor="http:request" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="faea8bb6-e16e-4f90-ac1d-c06d58b8f2fc" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[readUrl('classpath://files//customer-verification-not-exist-response.dwl')]" mediaType="application/java" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock when : create customer" doc:id="f7ae6ded-a06e-4fff-b667-9c32dbc3ef2d" processor="http:request" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="b6e12e37-359c-47f8-92a6-3fdf6fd38238" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="HTTP:CONNECTIVITY" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<munit:set-event doc:name="Set Event : payload" doc:id="afe9417f-66b0-46ec-a050-927d0e37b385" >
+				<munit:payload value="#[readUrl('classpath://files//order-input.dwl')]" />
+				<munit:variables >
+					<munit:variable key="correlationID" value="234234-2345234-23456" />
+				</munit:variables>
+			</munit:set-event>
+			<flow-ref doc:name="Flow-ref to post:\orders:application\json:ek-micorp-papi-config" doc:id="585a4d41-a3dc-457a-8fd1-b62a68ecf8c3" name="post:\orders:application\json:ek-micorp-papi-config" />
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:verify-call doc:name="Verify call : HTTP:CONNECTIVITY" doc:id="af0357f8-19b7-4163-b8d2-f4850826f8f6" processor="ee:transform" atLeast="1">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="a7546b8e-ee81-4003-9ae5-ec45be86a403" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="ek-micorp-papi-order-customer-doest-exist-order-failure-test" doc:id="d2747d93-0976-4df8-becb-075f665727d0" description="Test" expectedErrorType="HTTP:BAD_REQUEST">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when : customer Verification " doc:id="d6e5a410-39ef-4c6d-945f-9ed4ff728db1" processor="http:request" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="faea8bb6-e16e-4f90-ac1d-c06d58b8f2fc" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[readUrl('classpath://files//customer-verification-not-exist-response.dwl')]" mediaType="application/java" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock when : create customer" doc:id="80cb18ff-9bf4-43ee-843d-4793ddf93646" processor="http:request" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="b6e12e37-359c-47f8-92a6-3fdf6fd38238" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[readUrl('classpath://files//create-customer.dwl')]" mediaType="application/java" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock when : Create Order" doc:id="5eb9b70b-c556-47e3-a7bd-8d045284eb37" processor="http:request" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="b6202161-f51c-4071-80ff-9a58bb52ca9f" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="HTTP:BAD_REQUEST" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<munit:set-event doc:name="Set Event : payload" doc:id="b5b4fd09-080e-4e28-af2f-4ab64a1ebc30" >
+				<munit:payload value="#[readUrl('classpath://files//order-input.dwl')]" />
+				<munit:variables >
+					<munit:variable key="correlationID" value="234234-2345234-23456" />
+				</munit:variables>
+			</munit:set-event>
+			<flow-ref doc:name="Flow-ref to post:\orders:application\json:ek-micorp-papi-config" doc:id="68680157-479a-48db-af76-afb014bfc650" name="post:\orders:application\json:ek-micorp-papi-config" />
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:verify-call doc:name="Verify call : HTTP:BAD_REQUEST" doc:id="dc70e5f8-d03c-4d9e-b4aa-720c10648865" processor="ee:transform" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="db975319-623e-4124-8428-37dfaedd806b" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="ek-micorp-papi-order-customer-doest-exist-item-failure-test" doc:id="d1d791d8-3c35-4c21-95f7-afef0a6baf5a" description="Test" expectedErrorType="HTTP:UNAUTHORIZED">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when : customer Verification " doc:id="bbf3537d-6e4f-40f2-934b-2f5ea33526ab" processor="http:request" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="faea8bb6-e16e-4f90-ac1d-c06d58b8f2fc" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[readUrl('classpath://files//customer-verification-not-exist-response.dwl')]" mediaType="application/java" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock when : create customer" doc:id="1645ac20-280c-4898-aaa7-e0b90678852e" processor="http:request" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="b6e12e37-359c-47f8-92a6-3fdf6fd38238" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[readUrl('classpath://files//create-customer.dwl')]" mediaType="application/java" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock when : Create Order" doc:id="905f908e-eaea-4e69-8441-01d5a29d8bbd" processor="http:request" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="b6202161-f51c-4071-80ff-9a58bb52ca9f" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[readUrl('classpath://files//create-order.dwl')]" mediaType="application/java" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock when : create item" doc:id="c49019a1-ef44-492e-82d7-85436a2f8d76" processor="http:request" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="7ec70a7f-477d-4de5-bbaf-b14dc4096cc0" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="HTTP:UNAUTHORIZED" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<munit:set-event doc:name="Set Event : payload" doc:id="7da1a62d-3132-4168-b1f2-e735092d0742" >
+				<munit:payload value="#[readUrl('classpath://files//order-input.dwl')]" />
+				<munit:variables >
+					<munit:variable key="correlationID" value="234234-2345234-23456" />
+				</munit:variables>
+			</munit:set-event>
+			<flow-ref doc:name="Flow-ref to post:\orders:application\json:ek-micorp-papi-config" doc:id="09b29d49-3c0d-4369-9c2e-2400cbc2240e" name="post:\orders:application\json:ek-micorp-papi-config" />
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:verify-call doc:name="Verify call : Prepare Error Payload" doc:id="604db062-6ef5-4578-ba4e-157ef961a3bf" processor="ee:transform" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="aa592867-06b9-44a9-8a49-95065e21dc35" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="ek-micorp-papi-test-suite-ek-micorp-papi-mainTest" doc:id="3d7b8f5c-5afc-4d85-b032-7c477c7d0ab9" description="Test" expectedErrorType="MULE:UNKNOWN">
+		<munit:execution >
+			<munit:set-event doc:name="Set Event : Attributes" doc:id="a6ff2e9f-93de-4d67-9871-5a797824f72b" >
+				<munit:attributes value='#[{&#10;	"correlation-id" : 2134-2134-23423&#10;}]' />
+			</munit:set-event>
+			<flow-ref doc:name="Flow-ref to ek-micorp-papi-main" doc:id="5017bc23-0e77-4cdd-9bee-5c2bf4224c8c" name="ek-micorp-papi-main"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-equals doc:name="Assert equals" doc:id="845deaf2-415d-4a51-8f85-427595cfea05" actual="#[vars.correlationId]" expected="2134-2134-23423"/>
+			<munit-tools:verify-call doc:name="Verify call : APIKit Router" doc:id="a5e9af26-8db1-4c4e-8fd8-25f0373c2301" processor="apikit:router" atLeast="1">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="ek-micorp-papi-config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+		</munit:validation>
+	</munit:test>
+
+
+</mule>

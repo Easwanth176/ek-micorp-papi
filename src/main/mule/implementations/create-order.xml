@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:json-logger="http://www.mulesoft.org/schema/mule/json-logger"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/json-logger http://www.mulesoft.org/schema/mule/json-logger/current/mule-json-logger.xsd">
+	<sub-flow name="create-order-sub-flow" doc:id="f2444507-7780-4e1f-856b-2edfaa1d8df4" >
+		<json-logger:logger doc:name="Start" doc:id="94779540-0ca9-40ad-9805-d5694c6366be" config-ref="JSON_Logger_Config" message="#[vars.correlationId]"/>
+		<ee:transform doc:name="Prepare Order Payload" doc:id="23ffc55d-c283-4d7a-8183-41c8fcf37c75">
+			<ee:message>
+				<ee:set-payload resource="dwl/p-create-order.dwl" />
+			
+</ee:message>
+		</ee:transform>
+		<http:request method="POST" doc:name="POST : Order" doc:id="b6202161-f51c-4071-80ff-9a58bb52ca9f" url="${base.url}/order">
+			<http:headers ><![CDATA[#[output application/java
+---
+{
+	"client_Id" : vars.client_id,
+	"client_Secret" : vars.client_secret
+	
+}]]]></http:headers>
+		</http:request>
+		<ee:transform doc:name="Order Response" doc:id="b34849c1-1ba3-4b1d-abec-19a40008c635" >
+			<ee:message >
+				<ee:set-payload resource="dwl/p-create-order-response.dwl" />
+			</ee:message>
+		</ee:transform>
+		<json-logger:logger doc:name="End" doc:id="7f4d2fbc-1eb7-4891-8532-44b3d17acdd3" config-ref="JSON_Logger_Config" message="#[vars.correlationId]" tracePoint="END"/>
+	
+</sub-flow>
+	
+	
+	
+	
+	</mule>

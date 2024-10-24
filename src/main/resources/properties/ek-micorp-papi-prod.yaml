@@ -1,0 +1,13 @@
+http:
+   port: "8081"
+   base: "micorp"
+json: 
+   logger:
+      application:
+              name: "ek-micorp-papi"
+              version: "1.0.0-SNAPSHOT"
+base:
+  url: "http://ek-micorp-sapi.us-e1.cloudhub.io/micorp/api"
+  
+api:
+  id: "20025367"

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:json-logger="http://www.mulesoft.org/schema/mule/json-logger"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:module-error-handler-plugin="http://www.mulesoft.org/schema/mule/module-error-handler-plugin" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/module-error-handler-plugin http://www.mulesoft.org/schema/mule/module-error-handler-plugin/current/mule-module-error-handler-plugin.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/json-logger http://www.mulesoft.org/schema/mule/json-logger/current/mule-json-logger.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+	<error-handler name="global-error-handler" doc:id="753d9e8c-6a95-4809-844d-a3dcbf77ea7b" >
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="d1e26c27-5304-4caf-9bcd-d4e5c01a4c5f" type="HTTP:INTERNAL_SERVER_ERROR">
+				<ee:transform doc:name="Internal Server Error" doc:id="4a6f6e72-251e-4a17-8529-7e0a83a02399">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
+output application/java
+---
+{
+	"Error" : "Failed to Execute Query"
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</on-error-propagate>
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="b3a3061f-4d8c-4c29-8f90-3410f2268256" type="HTTP:CONNECTIVITY">
+				<ee:transform doc:name="Connectivity Error" doc:id="a7546b8e-ee81-4003-9ae5-ec45be86a403">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"Error" : "Please Check Your Connection"
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</on-error-propagate>
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="4214ec80-1777-44e4-9b41-863e4fa937d1" type="HTTP:BAD_REQUEST">
+			<ee:transform doc:name="Bad Request" doc:id="db975319-623e-4124-8428-37dfaedd806b">
+				<ee:message>
+					<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"Error" : "please check your payload"
+}]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+		</on-error-propagate>
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="b8aabce3-3d1b-46e8-8043-bc9337182c21" type="ANY">
+			<module-error-handler-plugin:process-error doc:name="Process Error" doc:id="18bbe6f3-b3c6-4da6-869d-1c721ac4ae28" />
+			<ee:transform doc:name="Prepare Error Payload" doc:id="aa592867-06b9-44a9-8a49-95065e21dc35">
+				<ee:message>
+					<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+    "appName": app.name,
+    "errorCode": payload.error.code,
+    "errorReason": payload.error.reason,
+    "errorMessage": payload.error.message,
+    "correlationId": if ( vars.correlationId != null ) vars.correlationId else correlationId,
+    "timeStamp": if ( vars.timeStamp != null ) vars.timeStamp else now(),
+}]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+		</on-error-propagate>
+	</error-handler>
+</mule>

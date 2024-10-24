@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:json-logger="http://www.mulesoft.org/schema/mule/json-logger" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/json-logger http://www.mulesoft.org/schema/mule/json-logger/current/mule-json-logger.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+	
+		<sub-flow name="create-item-sub-flow" doc:id="84030b67-2a06-4b1e-bf8a-c904a4d1daf1" >
+		<json-logger:logger doc:name="Start" doc:id="876ee6e0-158b-4ec4-b2a7-7e46da65e033" config-ref="JSON_Logger_Config" message="#[vars.correlationId]"/>
+		<ee:transform doc:name="Prepare Item Payload" doc:id="0c3e1f6c-2173-4f66-b3cc-3f1c7dceedd5">
+			<ee:message>
+				<ee:set-payload resource="dwl/p-create-item.dwl" />
+			
+</ee:message>
+		</ee:transform>
+		<http:request method="POST" doc:name="POST : Items" doc:id="7ec70a7f-477d-4de5-bbaf-b14dc4096cc0" url="${base.url}/item" correlationId="#[vars.correlationId]">
+			<http:headers ><![CDATA[#[output application/java
+---
+{
+	"client_Id" : vars.client_id,
+	"client_Secret" : vars.client_secret
+	
+}]]]></http:headers>
+		</http:request>
+		<ee:transform doc:name="Items Response" doc:id="013b5f7a-16de-483c-bfea-6ddd346361cb" >
+			<ee:message >
+				<ee:set-payload resource="dwl/p-create-item-response.dwl" />
+			</ee:message>
+		</ee:transform>
+		<json-logger:logger doc:name="End" doc:id="18b064de-e141-4c99-8259-f27a9b915442" config-ref="JSON_Logger_Config" message="#[vars.correlationId]" tracePoint="END"/>
+	
+</sub-flow>
+	
+	
+	
+	</mule>
